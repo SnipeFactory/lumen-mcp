@@ -1,0 +1,20 @@
+{
+  "name": "@snipefactory/lumen-mcp",
+  "version": "1.4.5",
+  "description": "JVM Flight Recorder (JFR) Forensic Engine for LLM",
+  "type": "module",
+  "bin": {
+    "lumen-mcp": "./dist/server.js"
+  },
+  "scripts": {
+    "build": "tsc && ./gradlew installDist",
+    "start": "node dist/server.js"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.0.3"
+  },
+  "devDependencies": {
+    "@types/node": "^20.11.0",
+    "typescript": "^5.3.3"
+  }
+}

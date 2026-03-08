@@ -9,10 +9,10 @@
     "url": "https://github.com/SnipeFactory/lumen-mcp"
   },
   "scripts": {
-    "build": "./gradlew installDist",
-    "run": "java -cp build/install/lumen-mcp/lib/* org.lumen.mcp.LumenServer"
+    "build": "npm install && tsc && ./gradlew installDist",
+    "run": "node dist/server.js"
   },
-  "runtime": "java",
+  "runtime": "node",
   "mcp": {
     "type": "stdio",
     "tools": [
