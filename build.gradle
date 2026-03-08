@@ -1,0 +1,38 @@
+plugins {
+    id 'java'
+    id 'application'
+}
+
+group = 'org.lumen'
+version = '0.1.0-SNAPSHOT'
+
+repositories {
+    mavenCentral()
+    // JMC 라이브러리 저장소
+    maven { url 'https://maven.anypoint.mulesoft.com/api/v1/organizations/68efad56-0697-473e-b092-858887b31251/maven' }
+}
+
+dependencies {
+    // 1. JDK Mission Control (JFR 파싱 핵심)
+    implementation 'org.openjdk.jmc:common:8.3.1'
+    implementation 'org.openjdk.jmc:flightrecorder:8.3.1'
+    
+    // 2. JSON 처리 (Jackson)
+    implementation 'com.fasterxml.jackson.core:jackson-databind:2.15.2'
+
+    // Testing
+    testImplementation 'org.junit.jupiter:junit-jupiter:5.9.3'
+}
+
+application {
+    mainClass = 'org.lumen.mcp.LumenServer'
+}
+
+java {
+    sourceCompatibility = JavaVersion.VERSION_11
+    targetCompatibility = JavaVersion.VERSION_11
+}
+
+tasks.named('test') {
+    useJUnitPlatform()
+}

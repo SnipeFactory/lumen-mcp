@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- 
+  Lumen Ultimate CSI Profile 
+  - Optimized for: Java 8 ~ 21
+  - Purpose: Full-stack JVM monitoring (CPU, Memory, Lock, I/O, SQL)
+-->
+<configuration version="2.0" label="Lumen Ultimate CSI" description="Complete monitoring for troubleshooting" provider="Lumen">
+
+  <!-- 1. Exception Tracking -->
+  <event name="jdk.JavaExceptionThrow">
+    <setting name="enabled">true</setting>
+    <setting name="stackTrace">true</setting>
+  </event>
+  <event name="jdk.JavaErrorThrow">
+    <setting name="enabled">true</setting>
+    <setting name="stackTrace">true</setting>
+  </event>
+
+  <!-- 2. Network I/O -->
+  <event name="jdk.SocketRead">
+    <setting name="enabled">true</setting>
+    <setting name="stackTrace">true</setting>
+    <setting name="threshold">0 ms</setting>
+  </event>
+  <event name="jdk.SocketWrite">
+    <setting name="enabled">true</setting>
+    <setting name="stackTrace">true</setting>
+    <setting name="threshold">0 ms</setting>
+  </event>
+
+  <!-- 3. File I/O -->
+  <event name="jdk.FileRead">
+    <setting name="enabled">true</setting>
+    <setting name="stackTrace">true</setting>
+    <setting name="threshold">0 ms</setting>
+  </event>
+  <event name="jdk.FileWrite">
+    <setting name="enabled">true</setting>
+    <setting name="stackTrace">true</setting>
+    <setting name="threshold">0 ms</setting>
+  </event>
+
+  <!-- 4. Database (JDBC) -->
+  <event name="jdk.JDBCQuery">
+    <setting name="enabled">true</setting>
+    <setting name="stackTrace">true</setting>
+    <setting name="threshold">0 ms</setting>
+  </event>
+
+  <!-- 5. Concurrency & Locks -->
+  <event name="jdk.JavaMonitorEnter">
+    <setting name="enabled">true</setting>
+    <setting name="stackTrace">true</setting>
+    <setting name="threshold">0 ms</setting>
+  </event>
+
+  <!-- 6. CPU Profiling -->
+  <event name="jdk.ExecutionSample">
+    <setting name="enabled">true</setting>
+    <setting name="period">10 ms</setting>
+  </event>
+
+  <!-- 7. Memory & Garbage Collection -->
+  <event name="jdk.GarbageCollection">
+    <setting name="enabled">true</setting>
+  </event>
+  <event name="jdk.GCHeapSummary">
+    <setting name="enabled">true</setting>
+  </event>
+  <event name="jdk.ObjectAllocationInNewTLAB">
+    <setting name="enabled">true</setting>
+    <setting name="stackTrace">true</setting>
+  </event>
+  <event name="jdk.ObjectAllocationOutsideTLAB">
+    <setting name="enabled">true</setting>
+    <setting name="stackTrace">true</setting>
+  </event>
+
+  <!-- 8. OS & System Metrics -->
+  <event name="jdk.CPULoad">
+    <setting name="enabled">true</setting>
+    <setting name="period">1000 ms</setting>
+  </event>
+  <event name="jdk.ThreadContextSwitchRate">
+    <setting name="enabled">true</setting>
+    <setting name="period">1000 ms</setting>
+  </event>
+  <event name="jdk.VMInformation">
+    <setting name="enabled">true</setting>
+  </event>
+
+</configuration>
