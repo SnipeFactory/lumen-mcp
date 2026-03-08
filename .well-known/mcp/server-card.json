@@ -1,0 +1,62 @@
+{
+  "serverInfo": {
+    "name": "lumen-ultimate",
+    "version": "1.4.5"
+  },
+  "tools": [
+    {
+      "name": "analyze_exceptions",
+      "description": "Analyze JFR exception events and call chains",
+      "inputSchema": {
+        "type": "object",
+        "properties": { "path": { "type": "string", "description": "Path to the .jfr file" } },
+        "required": ["path"]
+      }
+    },
+    {
+      "name": "analyze_jdbc_queries",
+      "description": "Analyze slow SQL queries (Java 11+)",
+      "inputSchema": {
+        "type": "object",
+        "properties": { "path": { "type": "string", "description": "Path to the .jfr file" } },
+        "required": ["path"]
+      }
+    },
+    {
+      "name": "analyze_network_io",
+      "description": "Analyze socket latency (Essential for Java 8 triage)",
+      "inputSchema": {
+        "type": "object",
+        "properties": { "path": { "type": "string", "description": "Path to the .jfr file" } },
+        "required": ["path"]
+      }
+    },
+    {
+      "name": "analyze_hot_methods",
+      "description": "Pinpoint CPU hotspots in code with stack trace",
+      "inputSchema": {
+        "type": "object",
+        "properties": { "path": { "type": "string", "description": "Path to the .jfr file" } },
+        "required": ["path"]
+      }
+    },
+    {
+      "name": "analyze_memory_usage",
+      "description": "Analyze GC health and object allocation hotspots",
+      "inputSchema": {
+        "type": "object",
+        "properties": { "path": { "type": "string", "description": "Path to the .jfr file" } },
+        "required": ["path"]
+      }
+    },
+    {
+      "name": "analyze_lock_contention",
+      "description": "Identify thread synchronization bottlenecks",
+      "inputSchema": {
+        "type": "object",
+        "properties": { "path": { "type": "string", "description": "Path to the .jfr file" } },
+        "required": ["path"]
+      }
+    }
+  ]
+}
