@@ -1,0 +1,24 @@
+{
+  "name": "lumen-mcp",
+  "version": "1.4.5",
+  "description": "JVM Flight Recorder (JFR) Forensic Engine for LLM",
+  "author": "SnipeFactory",
+  "license": "Apache-2.0",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/SnipeFactory/lumen-mcp"
+  },
+  "scripts": {
+    "build": "./gradlew installDist",
+    "run": "java -cp build/install/lumen-mcp/lib/* org.lumen.mcp.LumenServer"
+  },
+  "runtime": "java",
+  "mcp": {
+    "type": "stdio",
+    "tools": [
+      { "name": "analyze_exceptions", "description": "Analyze JFR exception events" },
+      { "name": "analyze_jdbc_queries", "description": "Analyze SQL query latency" },
+      { "name": "analyze_network_io", "description": "Analyze socket I/O latency" }
+    ]
+  }
+}
