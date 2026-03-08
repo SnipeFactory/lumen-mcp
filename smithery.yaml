@@ -1,0 +1,9 @@
+# [Lumen MCP] Smithery Configuration
+runtime: java
+entrypoint: org.lumen.mcp.LumenServer
+install: ./gradlew installDist
+build: ./gradlew installDist
+args:
+  - "-cp"
+  - "build/install/lumen-mcp/lib/*"
+  - "org.lumen.mcp.LumenServer"
