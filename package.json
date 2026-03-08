@@ -3,12 +3,20 @@
   "version": "1.4.5",
   "description": "JVM Flight Recorder (JFR) Forensic Engine for LLM",
   "type": "module",
+  "main": "./dist/index.js",
+  "module": "./dist/index.js",
   "bin": {
-    "lumen-mcp": "./dist/server.js"
+    "lumen-mcp": "./dist/index.js"
   },
+  "files": [
+    "dist",
+    "build",
+    "lumen.jfc",
+    "smithery.json"
+  ],
   "scripts": {
     "build": "tsc && ./gradlew installDist",
-    "start": "node dist/server.js"
+    "start": "node dist/index.js"
   },
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.0.3"
