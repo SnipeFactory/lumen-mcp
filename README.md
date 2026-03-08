@@ -4,41 +4,40 @@
 [![한글](https://img.shields.io/badge/언어-한글-red.svg)](./README.ko.md)
 
 > **JVM Flight Recorder (JFR) Forensic Engine for LLM**  
-> **Advanced JFR Analysis Engine: Lumen MCP Server for Gemini & LLMs**
+> **Hybrid TypeScript/Java MCP Server for Advanced JVM Analysis**
 
-Lumen MCP is the analytical brain of the Lumen ecosystem. It parses complex JVM Flight Recorder (JFR) binary files and translates them into actionable insights, enabling LLMs to pinpoint precise root causes of Java server incidents.
+Lumen MCP is the analytical brain of the Lumen ecosystem. It leverages a high-performance Java engine to parse JFR files and a TypeScript bridge to provide a seamless Model Context Protocol (MCP) interface for AI agents like Gemini and Claude.
 
 ---
 
 ## ✨ Key Features
 
-- **Exception Forensics:** Trace hidden exceptions (Swallowed Exceptions) that never appear in standard application logs.
-- **SQL Analytics:** Analyze slow query execution times and pinpoint the exact DAO/Mapper source (Supports Java 11+).
-- **Resource Profiling:** Detect CPU Hotspots, Memory Leaks, and Lock Contention with line-level precision.
-- **Generic & Unbiased:** A standalone engine that works with any Java project without requiring code changes.
+- **Hybrid Intelligence:** Combines Java's deep JFR parsing power with Node.js's ecosystem compatibility.
+- **Exception Forensics:** Trace hidden exceptions (Swallowed Exceptions) with full call chains.
+- **SQL & I/O Analytics:** Pinpoint slow queries and socket latencies with line-level precision.
+- **Smithery Ready:** Fully compatible with Smithery CLI for instant distribution.
 
 ---
 
 ## 🚀 Installation & Setup
 
-Lumen MCP implements the Model Context Protocol (MCP) and integrates seamlessly with clients like Gemini CLI.
-
 ### 1. Build the Project
+Lumen MCP requires both Node.js (18+) and Java (11+) to build.
 ```bash
-./gradlew installDist
+npm install
+npm run build
 ```
+*(This command runs `tsc` for the bridge and `./gradlew installDist` for the engine.)*
 
 ### 2. Register with Gemini CLI
-Add the following configuration to your `.gemini/settings.json` file:
+You can now run Lumen using the Node.js bridge (Recommended):
 ```json
 {
   "mcpServers": {
     "lumen": {
-      "command": "java",
+      "command": "node",
       "args": [
-        "-cp",
-        "/path/to/lumen-mcp/build/install/lumen-mcp/lib/*",
-        "org.lumen.mcp.LumenServer"
+        "/path/to/lumen-mcp/dist/server.js"
       ]
     }
   }
@@ -49,24 +48,20 @@ Add the following configuration to your `.gemini/settings.json` file:
 
 ## 🔍 Diagnostic Tools
 
-Once registered, Lumen provides the following tools to your LLM agent:
-
 | Tool | Description |
 |---|---|
 | `analyze_exceptions` | Analyzes exception throw points and call chains. |
 | `analyze_jdbc_queries` | Identifies slow SQL queries and their source lines (Java 11+). |
-| `analyze_network_io` | Detects socket latency (Essential for Java 8 DB/API triage). |
+| `analyze_network_io` | Detects socket latency (Essential for Java 8 triage). |
 | `analyze_hot_methods` | Pinpoints code lines consuming the most CPU cycles. |
 | `analyze_memory_usage` | Analyzes GC health and object allocation hotspots. |
 | `analyze_lock_contention` | Identifies thread synchronization bottlenecks. |
-| `analyze_os_metrics` | Reports OS-level load, context switching, and system health. |
 
 ---
 
 ## 📖 Usage Example
 
-Simply ask your LLM agent to investigate a JFR file:
-> **"Gemini, analyze `data/incident_report.jfr`. Tell me why the server response time spiked at 3 PM yesterday."**
+> **"Gemini, use lumen to analyze `data/incident.jfr`. Tell me why the database response is slow."**
 
 ---
-© 2026 [SnipeFactory](https://github.com/SnipeFactory). Part of the Lumen Ecosystem.
+© 2026 [SnipeFactory](https://github.com/SnipeFactory). All rights reserved.
