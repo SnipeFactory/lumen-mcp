@@ -8,139 +8,147 @@ import { spawn } from "child_process";
 import path from "path";
 import { fileURLToPath } from "url";
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
+/**
+ * [Lumen Hybrid Bridge]
+ * Smithery의 스캐너 호환성을 위해 TypeScript 진입점을 제공하면서,
+ * 실제 무거운 분석은 고성능 Java 엔진에 위임합니다.
+ */
 
-// Java 서버 위치 계산
+// Smithery 스캔 시 import.meta.url이 없을 경우를 대비한 안전한 경로 계산
+const getDirname = () => {
+  try {
+    return path.dirname(fileURLToPath(import.meta.url));
+  } catch (e) {
+    return process.cwd();
+  }
+};
+
+const __dirname = getDirname();
 const JAVA_CP = path.join(__dirname, "../build/install/lumen-mcp/lib/*");
 const JAVA_CLASS = "org.lumen.mcp.LumenServer";
 
-const server = new Server(
-  {
-    name: "lumen-ultimate",
-    version: "1.4.5",
-  },
-  {
-    capabilities: {
-      tools: {},
+/**
+ * Smithery 스캐너가 도구 목록을 파악할 수 있도록 서버 인스턴스 생성 함수 노출
+ */
+export function createLumenServer() {
+  const server = new Server(
+    {
+      name: "lumen-ultimate",
+      version: "1.4.5",
     },
-  }
-);
+    {
+      capabilities: {
+        tools: {},
+      },
+    }
+  );
 
-/**
- * 도구 목록 정의 (Smithery 스캔용)
- */
-server.setRequestHandler(ListToolsRequestSchema, async () => {
-  return {
-    tools: [
-      {
-        name: "analyze_exceptions",
-        description: "Analyze JFR exception events and call chains",
-        inputSchema: {
-          type: "object",
-          properties: { path: { type: "string" } },
-          required: ["path"],
+  // 스캐너를 위한 도구 명세 정의
+  server.setRequestHandler(ListToolsRequestSchema, async () => {
+    return {
+      tools: [
+        {
+          name: "analyze_exceptions",
+          description: "Analyze JFR exception events and call chains",
+          inputSchema: {
+            type: "object",
+            properties: { path: { type: "string" } },
+            required: ["path"],
+          },
         },
-      },
-      {
-        name: "analyze_jdbc_queries",
-        description: "Analyze slow SQL queries (Java 11+)",
-        inputSchema: {
-          type: "object",
-          properties: { path: { type: "string" } },
-          required: ["path"],
+        {
+          name: "analyze_jdbc_queries",
+          description: "Analyze slow SQL queries (Java 11+)",
+          inputSchema: {
+            type: "object",
+            properties: { path: { type: "string" } },
+            required: ["path"],
+          },
         },
-      },
-      {
-        name: "analyze_network_io",
-        description: "Analyze socket latency (Essential for Java 8)",
-        inputSchema: {
-          type: "object",
-          properties: { path: { type: "string" } },
-          required: ["path"],
+        {
+          name: "analyze_network_io",
+          description: "Analyze socket latency (Essential for Java 8 triage)",
+          inputSchema: {
+            type: "object",
+            properties: { path: { type: "string" } },
+            required: ["path"],
+          },
         },
-      },
-      {
-        name: "analyze_hot_methods",
-        description: "Pinpoint CPU hotspots in code",
-        inputSchema: {
-          type: "object",
-          properties: { path: { type: "string" } },
-          required: ["path"],
+        {
+          name: "analyze_hot_methods",
+          description: "Pinpoint CPU hotspots in code with stack trace",
+          inputSchema: {
+            type: "object",
+            properties: { path: { type: "string" } },
+            required: ["path"],
+          },
         },
-      },
-      {
-        name: "analyze_memory_usage",
-        description: "Analyze GC and object allocations",
-        inputSchema: {
-          type: "object",
-          properties: { path: { type: "string" } },
-          required: ["path"],
+        {
+          name: "analyze_memory_usage",
+          description: "Analyze GC health and object allocation hotspots",
+          inputSchema: {
+            type: "object",
+            properties: { path: { type: "string" } },
+            required: ["path"],
+          },
         },
-      },
-      {
-        name: "analyze_lock_contention",
-        description: "Identify thread synchronization bottlenecks",
-        inputSchema: {
-          type: "object",
-          properties: { path: { type: "string" } },
-          required: ["path"],
+        {
+          name: "analyze_lock_contention",
+          description: "Identify thread synchronization bottlenecks",
+          inputSchema: {
+            type: "object",
+            properties: { path: { type: "string" } },
+            required: ["path"],
+          },
         },
-      },
-      {
-        name: "analyze_os_metrics",
-        description: "Report OS-level health and metrics",
-        inputSchema: {
-          type: "object",
-          properties: { path: { type: "string" } },
-          required: ["path"],
-        },
-      },
-    ],
-  };
-});
-
-/**
- * 도구 호출 처리: Java 프로세스에 위임 (Proxy)
- */
-server.setRequestHandler(CallToolRequestSchema, async (request) => {
-  return new Promise((resolve, reject) => {
-    // Java 프로세스 실행
-    const javaProcess = spawn("java", ["-cp", JAVA_CP, JAVA_CLASS]);
-    let responseData = "";
-
-    javaProcess.stdout.on("data", (data) => {
-      responseData += data.toString();
-    });
-
-    javaProcess.stderr.on("data", (data) => {
-      console.error(`[Java Error] ${data}`);
-    });
-
-    javaProcess.on("close", (code) => {
-      try {
-        // Java 서버는 한 번의 호출에 대해 하나의 JSON-RPC 응답을 출력하고 종료되는 방식으로 작동하거나
-        // 혹은 stdio를 계속 열어둘 수 있습니다. 
-        // 여기서는 Java 서버가 stdio MCP 사양을 직접 구현하고 있으므로 통째로 pipe하는 것이 가장 효율적입니다.
-        // 하지만 Smithery 호환성을 위해 JS가 앞단에서 처리합니다.
-      } catch (e) {
-        reject(e);
-      }
-    });
-
-    // 실제로는 JS 서버가 계속 떠있고, Java 서버와 stdio로 대화하는 로직이 필요합니다.
-    // 하지만 가장 간단하고 확실한 방법은 JS가 Java를 실행해서 stdio를 통째로 연결해버리는 것입니다.
-    // 아래는 단순 Proxy 로직입니다.
-    const transport = new StdioServerTransport();
-    // transport와 javaProcess.stdio를 연결하는 고난도 작업 대신, 
-    // 지금의 LumenServer.java는 그 자체로 MCP 서버이므로 
-    // JS의 진입점은 단순히 "java -cp ... LumenServer"를 실행하는 런처 역할만 해도 충분합니다.
+      ],
+    };
   });
-});
 
-async function main() {
-  const transport = new StdioServerTransport();
-  await server.connect(transport);
+  // 도구 호출은 실제 실행 시 Proxy 모드에서 처리하므로 여기서는 최소한의 응답만 제공
+  server.setRequestHandler(CallToolRequestSchema, async () => {
+    return {
+      content: [{ type: "text", text: "Java engine is required for execution." }],
+    };
+  });
+
+  return server;
 }
 
-main().catch(console.error);
+/**
+ * Smithery 전용 샌드박스 서버 노출 (필수)
+ */
+export function createSandboxServer() {
+  return createLumenServer();
+}
+
+/**
+ * 실제 실행 시에는 Java 프로세스로 통째로 파이핑하여 성능 손실을 방지합니다.
+ */
+async function runProxy() {
+  const java = spawn("java", ["-cp", JAVA_CP, JAVA_CLASS], {
+    stdio: ["pipe", "pipe", "inherit"],
+  });
+
+  process.stdin.pipe(java.stdin);
+  java.stdout.pipe(process.stdout);
+
+  java.on("exit", (code) => {
+    process.exit(code || 0);
+  });
+
+  java.on("error", (err) => {
+    console.error("[Lumen] Failed to start Java engine:", err);
+    process.exit(1);
+  });
+}
+
+// 직접 실행될 때만 Proxy 모드 가동
+const isMain = process.argv[1] && (
+  process.argv[1].endsWith('index.js') || 
+  process.argv[1].endsWith('server.js')
+);
+
+if (isMain) {
+  runProxy().catch(console.error);
+}
